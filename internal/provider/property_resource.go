@@ -188,8 +188,12 @@ func (r *propertyResource) Read(ctx context.Context, req resource.ReadRequest, r
 	}
 
 	model := propertyModelFromAPI(got)
-	// API から読み戻せないので state の値を引き継ぐ（import 直後は null で、次の plan で既定値へ寄る）
+	// The API can't read the acknowledgement back, so the state's value carries over. A null one, from an import
+	// made before this version, becomes false: this provider has not acknowledged anything for that property.
 	model.AcknowledgeUserDataCollection = state.AcknowledgeUserDataCollection
+	if model.AcknowledgeUserDataCollection.IsNull() {
+		model.AcknowledgeUserDataCollection = types.BoolValue(false)
+	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, model)...)
 }
@@ -257,6 +261,10 @@ func (r *propertyResource) Delete(ctx context.Context, req resource.DeleteReques
 // ImportState は `terraform import ga4_property.x properties/123` を受ける
 func (r *propertyResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// An imported property has not been acknowledged by this provider. With false in state, a configuration that
+	// sets acknowledge_user_data_collection = false imports with no changes, and one that sets true acknowledges
+	// at the next apply.
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("acknowledge_user_data_collection"), false)...)
 }
 
 func propertyModelFromAPI(p *analyticsadmin.GoogleAnalyticsAdminV1betaProperty) *propertyResourceModel {

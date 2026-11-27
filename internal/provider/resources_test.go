@@ -129,6 +129,35 @@ func TestImportState(t *testing.T) {
 	}
 }
 
+// An imported property is treated as not acknowledged: acknowledge_user_data_collection is false.
+func TestPropertyImportStateAcknowledgement(t *testing.T) {
+	ctx := context.Background()
+	server := newTestServer(t)
+
+	resp, err := server.ImportResourceState(ctx, &tfprotov6.ImportResourceStateRequest{TypeName: "ga4_property", ID: "properties/123"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if hasError(resp.Diagnostics) {
+		t.Fatalf("unexpected error: %v", resp.Diagnostics)
+	}
+	state, err := resp.ImportedResources[0].State.Unmarshal(resourceType(t, server, "ga4_property"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	v, _, err := tftypes.WalkAttributePath(state, tftypes.NewAttributePath().WithAttributeName("acknowledge_user_data_collection"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got *bool
+	if err := v.(tftypes.Value).As(&got); err != nil {
+		t.Fatal(err)
+	}
+	if got == nil || *got {
+		t.Errorf("acknowledge_user_data_collection = %v, want false", got)
+	}
+}
+
 func TestAccountPatch(t *testing.T) {
 	plan := accountResourceModel{DisplayName: types.StringValue("My Company"), RegionCode: types.StringUnknown()}
 	body, mask := accountPatch(plan)

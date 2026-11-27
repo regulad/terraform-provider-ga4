@@ -12,6 +12,8 @@ GA4 プロパティ。destroy はゴミ箱への移動で、35 日間は管理�
 - `acknowledge_user_data_collection`（省略可、既定 `true`）: 「ユーザーデータ収集の確認」を行う。
   `ga4_measurement_protocol_secret` はこれが済んでいないと作れない（API が `failedPrecondition` を返す）。
   確認済みかを返す API が無いので `false` に戻しても GA4 側は変わらない
+  An imported property's state holds `false`, as this provider has not acknowledged it. To import an existing
+  property with no changes, set `false`; to acknowledge as well, set `true`.
 
 ## 属性
 
