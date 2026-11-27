@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	analyticsadmin "google.golang.org/api/analyticsadmin/v1beta"
 	"google.golang.org/api/googleapi"
@@ -99,4 +100,41 @@ func parentOfName(name string) (string, error) {
 	}
 
 	return strings.Join(parts[:len(parts)-2], "/"), nil
+}
+
+// checkResourceName checks that name has the form of each collection in collections followed by an ID ("collection/ID" repeated).
+// For example, checkResourceName("properties/123/keyEvents/456", "properties", "keyEvents") returns nil.
+// Used to reject an import ID before Read. What the IDs contain (whether they are numeric) is left to the API
+func checkResourceName(name string, collections ...string) error {
+	parts := strings.Split(name, "/")
+	ok := len(parts) == len(collections)*2
+	for i := 0; ok && i < len(collections); i++ {
+		ok = parts[2*i] == collections[i] && parts[2*i+1] != ""
+	}
+	if !ok {
+		return fmt.Errorf("unexpected ID format: %q (expected the form %s)", name, exampleResourceName(collections...))
+	}
+
+	return nil
+}
+
+// exampleResourceName builds the example shown in error messages (such as "properties/123/keyEvents/456")
+func exampleResourceName(collections ...string) string {
+	ids := []string{"123", "456", "789"}
+	parts := make([]string, 0, len(collections)*2)
+	for i, c := range collections {
+		parts = append(parts, c, ids[i%len(ids)])
+	}
+
+	return strings.Join(parts, "/")
+}
+
+// importResourceName checks that an import ID has the form of a resource name, then puts it in `id` unchanged
+func importResourceName(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse, collections ...string) {
+	if err := checkResourceName(req.ID, collections...); err != nil {
+		resp.Diagnostics.AddError("Invalid import ID", err.Error())
+		return
+	}
+
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

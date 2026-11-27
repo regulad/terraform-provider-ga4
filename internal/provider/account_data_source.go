@@ -16,7 +16,8 @@ var (
 )
 
 // accountDataSource は表示名から GA4 アカウントを引く。
-// アカウントは API で作れない（管理画面でしか作れない）ので、データソースだけ用意する。
+// Accounts cannot be created through the API (only in the admin UI), so use this to refer to one without managing it.
+// To manage its display name and country code with Terraform as well, import it as a `ga4_account` resource.
 type accountDataSource struct {
 	svc *analyticsadmin.Service
 }

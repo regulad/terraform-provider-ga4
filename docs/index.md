@@ -1,7 +1,8 @@
 # ga4 Provider
 
-Google Analytics 4 の Admin API でプロパティ・データストリーム・Measurement Protocol API シークレット・
-カスタムディメンションを管理する。
+Manages, through the Google Analytics 4 Admin API (v1beta), accounts (by importing existing ones), properties, data retention settings,
+data streams (web / Android / iOS), Measurement Protocol API secrets, custom dimensions,
+custom metrics, key events, and Google Ads and Firebase links.
 
 ## 引数
 

@@ -57,7 +57,7 @@ func (r *propertyResource) Metadata(_ context.Context, req resource.MetadataRequ
 func (r *propertyResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description: "GA4 プロパティ。destroy はゴミ箱への移動で、35 日間は管理画面から復元できる。" +
-			"レポート用識別子・データ保持期間など Admin API v1beta に無い設定は管理画面で行う。",
+			"Data retention is set with `ga4_data_retention_settings`. Settings not in Admin API v1beta, such as reporting identity and Google signals, are made in the admin UI.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:      true,

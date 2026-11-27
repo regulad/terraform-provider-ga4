@@ -1,6 +1,7 @@
 # ga4_account (Data Source)
 
-表示名で GA4 アカウントを引く。アカウントは API で作れないので、データソースだけ用意している。
+Looks up a GA4 account by display name. Accounts cannot be created through the API, so use this to refer to one without managing it.
+To manage its display name and country code with Terraform as well, import it as a [`ga4_account` resource](../resources/account.md).
 
 ## 引数
 

@@ -1,0 +1,1 @@
+terraform import ga4_data_retention_settings.app properties/123

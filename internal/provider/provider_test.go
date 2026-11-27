@@ -41,6 +41,12 @@ func TestResourceSchemas(t *testing.T) {
 		"ga4_data_stream":                 false,
 		"ga4_measurement_protocol_secret": false,
 		"ga4_custom_dimension":            false,
+		"ga4_account":                     false,
+		"ga4_data_retention_settings":     false,
+		"ga4_custom_metric":               false,
+		"ga4_key_event":                   false,
+		"ga4_google_ads_link":             false,
+		"ga4_firebase_link":               false,
 	}
 
 	for _, factory := range p.Resources(ctx) {

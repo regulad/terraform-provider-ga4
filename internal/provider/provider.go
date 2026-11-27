@@ -1,8 +1,9 @@
 // Package provider は GA4 Admin API を Terraform から扱うためのプロバイダ実装。
 //
-// 扱うのは Measurement Protocol で計測するのに必要な最小限のもの:
-// プロパティ・ウェブデータストリーム・Measurement Protocol API シークレット・カスタムディメンション。
-// レポート用識別子など Admin API に無い設定は扱えないので、GA4 の管理画面で設定する。
+// It covers what Admin API v1beta offers: accounts (by importing existing ones), properties, data retention settings,
+// data streams (web / Android / iOS), Measurement Protocol API secrets, custom dimensions,
+// custom metrics, key events, Google Ads links and Firebase links.
+// Settings not in v1beta, such as reporting identity, are not supported; set them in the GA4 admin UI.
 package provider
 
 import (
@@ -39,7 +40,8 @@ func (p *ga4Provider) Metadata(_ context.Context, _ provider.MetadataRequest, re
 
 func (p *ga4Provider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "Google Analytics 4 の Admin API でプロパティ・データストリーム・Measurement Protocol API シークレット・カスタムディメンションを管理する。",
+		Description: "Manages, through the Google Analytics 4 Admin API, accounts, properties, data retention settings, data streams, Measurement Protocol API secrets, " +
+			"custom dimensions, custom metrics, key events, and Google Ads and Firebase links.",
 		Attributes: map[string]schema.Attribute{
 			"credentials": schema.StringAttribute{
 				Optional:  true,
@@ -76,6 +78,12 @@ func (p *ga4Provider) Resources(_ context.Context) []func() resource.Resource {
 		newDataStreamResource,
 		newMeasurementProtocolSecretResource,
 		newCustomDimensionResource,
+		newAccountResource,
+		newDataRetentionSettingsResource,
+		newCustomMetricResource,
+		newKeyEventResource,
+		newGoogleAdsLinkResource,
+		newFirebaseLinkResource,
 	}
 }
 

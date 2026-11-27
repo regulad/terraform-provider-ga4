@@ -27,4 +27,5 @@ terraform import ga4_property.x properties/123
 
 ## 扱えないもの
 
-レポート用識別子・データ保持期間・Google シグナルは Admin API v1beta に無いので管理画面で設定する。
+Data retention is set with `ga4_data_retention_settings`.
+Reporting identity and Google signals are not in Admin API v1beta, so set them in the admin UI.

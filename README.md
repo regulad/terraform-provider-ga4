@@ -2,15 +2,21 @@
 
 Google Analytics 4 の [Admin API](https://developers.google.com/analytics/devguides/config/admin/v1) を Terraform から扱うプロバイダ。
 
-Measurement Protocol でサーバーからイベントを送るのに必要な最小限のものだけを扱う。
+It covers what the stable Admin API (v1beta) offers.
 
 | 種別 | 名前 | 内容 |
 | --- | --- | --- |
 | Data Source | `ga4_account` | 表示名で既存アカウントを引く（アカウントは API で作れない） |
+| Resource | `ga4_account` | An existing account's display name and country code (used through import) |
 | Resource | `ga4_property` | プロパティ |
-| Resource | `ga4_data_stream` | ウェブデータストリーム |
+| Resource | `ga4_data_retention_settings` | A property's data retention settings |
+| Resource | `ga4_data_stream` | Data stream (web / Android app / iOS app) |
 | Resource | `ga4_measurement_protocol_secret` | Measurement Protocol の API シークレット |
 | Resource | `ga4_custom_dimension` | カスタムディメンション |
+| Resource | `ga4_custom_metric` | Custom metric |
+| Resource | `ga4_key_event` | Key event (formerly "conversion") |
+| Resource | `ga4_google_ads_link` | Link to a Google Ads account |
+| Resource | `ga4_firebase_link` | Link to a Firebase project |
 
 詳細は [docs/](docs/) と [examples/](examples/) を見ること。
 
@@ -80,11 +86,13 @@ Google Cloud 側では Google Analytics Admin API を有効にしておく。
 
 ## 注意
 
-- `ga4_property` の destroy はゴミ箱への移動。35 日間は管理画面から復元できる
-- `ga4_custom_dimension` の destroy はアーカイブ。取り消せない（同じ `parameter_name` で新しく作ることはできる）
+- `ga4_account` cannot be created through the API. Import an account made in the admin UI before using it (an apply without an import fails)
+- destroy on `ga4_account` and `ga4_property` moves them to the trash, from which they can be restored in the admin UI for 35 days
+- destroy on `ga4_custom_dimension` and `ga4_custom_metric` archives them. This cannot be undone (a new one can be created with the same `parameter_name`)
+- destroy on `ga4_data_retention_settings` only removes it from state. The settings in GA4 stay as they are
+- `ga4_firebase_link` cannot be updated, so changing any argument forces replacement
 - `ga4_measurement_protocol_secret` の `secret_value` は state に平文で入る
-- iOS / Android のアプリストリームは Firebase が必要で API だけでは作れないため扱わない
-- レポート用識別子・データ保持期間・Google シグナルは Admin API v1beta に無いので管理画面で設定する
+- Reporting identity and Google signals are not in Admin API v1beta, so set them in the admin UI
 
 ## 開発
 
